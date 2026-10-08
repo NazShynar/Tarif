@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Тарифы</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f6f7f4;--card:#fff;--ink:#1c2824;--mute:#66726d;--line:#dde3de;--acc:#17824f;--acc-d:#0f6a3e;--hl:#e8f4ec;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111815;--card:#1a2420;--ink:#eef3f0;--mute:#9aa8a1;--line:#2a3832;--acc:#2fb374;--acc-d:#4cc98a;--hl:#1e3328}}
+:root[data-theme="dark"]{--bg:#111815;--card:#1a2420;--ink:#eef3f0;--mute:#9aa8a1;--line:#2a3832;--acc:#2fb374;--acc-d:#4cc98a;--hl:#1e3328}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+header{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end;margin-bottom:32px}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.05;margin:0 0 8px;font-weight:800;letter-spacing:-.02em}
+header p{margin:0;color:var(--mute);max-width:46ch}
+.tools{display:flex;flex-wrap:wrap;gap:10px}
+.btn{font:inherit;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 16px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--acc)}
+.btn:focus-visible,.more:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.btn.main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:28px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.panel label{font-weight:600;font-size:14px}
+.panel input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);min-width:220px;flex:1;max-width:320px}
+.hint{color:var(--mute);font-size:13px;flex-basis:100%;margin:0}
+#msg{font-size:14px;margin:0 0 16px;min-height:21px;color:var(--mute)}
+#msg.err{color:#c0392b}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;align-items:stretch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 24px;display:flex;flex-direction:column;position:relative}
+.card.pop{border:2px solid var(--acc);background:linear-gradient(var(--hl),var(--card) 40%)}
+.badge{position:absolute;top:-12px;left:24px;background:var(--acc);color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
+.card h2{margin:0 0 4px;font-size:20px;font-weight:800}
+.card .desc{color:var(--mute);font-size:14px;margin:0 0 18px;min-height:21px}
+.price{font-size:40px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.price small{font-size:14px;font-weight:600;color:var(--mute);letter-spacing:0;margin-left:4px}
+ul{list-style:none;padding:0;margin:20px 0 26px;flex:1}
+li{padding:7px 0 7px 26px;position:relative;font-size:15px;border-top:1px solid var(--line)}
+li:first-child{border-top:0}
+li:before{content:"";position:absolute;left:2px;top:13px;width:10px;height:6px;border-left:2px solid var(--acc);border-bottom:2px solid var(--acc);transform:rotate(-45deg)}
+.more{display:block;text-align:center;background:var(--acc);color:#fff;font-weight:700;padding:13px;border-radius:12px;text-decoration:none}
+.more:hover{background:var(--acc-d)}
+.empty{grid-column:1/-1;text-align:center;color:var(--mute);padding:48px 0}
+@media (prefers-reduced-motion:no-preference){.btn,.more{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Наши тарифы</h1>
+      <p>Выберите подходящий тариф и нажмите «Подробнее» — откроется WhatsApp с готовым сообщением.</p>
+    </div>
+    <div class="tools">
+      <button class="btn main" id="upBtn" type="button">Загрузить Excel</button>
+      <button class="btn" id="tplBtn" type="button">Скачать шаблон</button>
+      <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
+    </div>
+  </header>
+
+  <div class="panel">
+    <label for="phone">Номер WhatsApp</label>
+    <input id="phone" type="tel" inputmode="tel" placeholder="77001234567" autocomplete="off">
+    <p class="hint">Номер в международном формате, только цифры, без «+» (например 77001234567). Сохраняется в этом браузере.</p>
+  </div>
+
+  <p id="msg" role="status"></p>
+  <main class="grid" id="grid"></main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+  var DEFAULT=[
+    {name:"Keremet TV",price:"9 999",cur:"₸",period:"мес. + оборудование",desc:"Интернет и телевидение",features:["Интернет 300 Мбит/с","ТВ плюс Optima: 159+ каналов","7 онлайн-кинотеатров (KINOROOM, Salem, MEGOGO, Premier, viju и др.)","Дополнительная точка ТВ","С контрактом на 3 года: 8 999 ₸"]},
+    {name:"Keremet Mobile",price:"10 999",cur:"₸",period:"мес. + оборудование",desc:"Интернет, ТВ и 1 номер",features:["Интернет 500 Мбит/с","1 номер Kcell или Altel: до 100 ГБ","Безлимит внутри сети, 300 минут на другие сети","ТВ плюс Mobile: 159+ каналов","С контрактом на 3 года: 9 999 ₸"]},
+    {name:"Bereket",price:"13 999",cur:"₸",period:"мес. + оборудование",desc:"Для семьи: 2 номера и ТВ",features:["Интернет 500 Мбит/с","ТВ плюс Full на 2 экрана, 159+ каналов","2 номера по 60 ГБ, безлимит внутри сети","250 минут на другие сети и городские","С контрактом на 3 года: 12 999 ₸"],popular:true},
+    {name:"Bereket 4",price:"17 999",cur:"₸",period:"мес. + оборудование",desc:"Большая семья: 4 номера и ТВ",features:["Интернет 500 Мбит/с","ТВ плюс Full на 2 экрана, 159+ каналов","4 номера по 60 ГБ, безлимит внутри сети","ТВ плюс Mobile на каждый номер","С контрактом на 3 года: 16 999 ₸"]},
+    {name:"Prime",price:"33 585",cur:"₸",period:"мес. + оборудование",desc:"Максимум скорости и сервиса",features:["Интернет 1000 Мбит/с","ТВ плюс Full, 170+ каналов","4 номера по 60 ГБ, безлимит внутри сети","Wi-Fi Mesh-система в пользование","Персональный менеджер и приоритетная поддержка"]}
+  ];
+  var WA_PHONE="";  // <-- впишите номер WhatsApp, например "77001234567"
+  var KEY_T="tariffs_v2",KEY_P="wa_phone_v1";
+  var grid=document.getElementById("grid"),msg=document.getElementById("msg"),phone=document.getElementById("phone"),file=document.getElementById("file");
+  var tariffs=DEFAULT;
+
+  function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+
+  try{var s=load(KEY_T);if(s){var p=JSON.parse(s);if(p&&p.length)tariffs=p}}catch(e){}
+  var sp=load(KEY_P);phone.value=WA_PHONE||sp||"";
+  phone.addEventListener("input",function(){store(KEY_P,phone.value.replace(/\D/g,""));render()});
+
+  function say(t,err){msg.textContent=t;msg.className=err?"err":""}
+  function digits(){return phone.value.replace(/\D/g,"")}
+
+  function waLink(t){
+    var text="Здравствуйте! Меня интересует тариф «"+t.name+"»"+(t.price?" ("+t.price+(t.cur?" "+t.cur:"")+")":"")+". Расскажите, пожалуйста, подробнее.";
+    return "https://wa.me/"+digits()+"?text="+encodeURIComponent(text);
+  }
+
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+
+  function render(){
+    grid.innerHTML="";
+    if(!tariffs.length){grid.appendChild(el("p","empty","Тарифов пока нет. Загрузите Excel-файл."));return}
+    tariffs.forEach(function(t){
+      var c=el("article","card"+(t.popular?" pop":""));
+      if(t.popular)c.appendChild(el("span","badge","Популярный"));
+      c.appendChild(el("h2",null,t.name));
+      c.appendChild(el("p","desc",t.desc||""));
+      var pr=el("div","price",t.price||"—");
+      if(t.cur||t.period){pr.appendChild(el("small",null,[t.cur,t.period?"/ "+t.period:""].filter(Boolean).join(" ")))}
+      c.appendChild(pr);
+      var ul=el("ul");(t.features||[]).forEach(function(f){ul.appendChild(el("li",null,f))});
+      c.appendChild(ul);
+      var a=el("a","more","Подробнее");
+      a.target="_blank";a.rel="noopener";
+      if(digits()){a.href=waLink(t)}
+      else{a.href="#";a.addEventListener("click",function(e){e.preventDefault();say("Сначала укажите номер WhatsApp выше.",true);phone.focus()})}
+      c.appendChild(a);grid.appendChild(c);
+    });
+  }
+
+  // ---- Excel parsing: гибкие названия колонок
+  var ALIAS={
+    name:["тариф","название","наименование","name","plan"],
+    price:["цена","стоимость","price","сумма"],
+    cur:["валюта","currency"],
+    period:["период","срок","period"],
+    desc:["описание","кратко","description","desc"],
+    features:["включено","возможности","условия","опции","features","состав"],
+    popular:["популярный","рекомендуем","хит","popular"]
+  };
+  function mapKeys(row){
+    var out={};
+    Object.keys(row).forEach(function(k){
+      var kk=String(k).trim().toLowerCase();
+      for(var f in ALIAS){if(ALIAS[f].indexOf(kk)>-1){out[f]=row[k];break}}
+    });
+    return out;
+  }
+  function fmtPrice(v){
+    if(typeof v==="number")return v.toLocaleString("ru-RU");
+    return String(v==null?"":v).trim();
+  }
+  function parse(rows){
+    var res=[];
+    rows.forEach(function(r){
+      var m=mapKeys(r);
+      if(!m.name)return;
+      var feats=String(m.features||"").split(/[\n;]+/).map(function(x){return x.trim()}).filter(Boolean);
+      var pop=String(m.popular||"").trim().toLowerCase();
+      res.push({
+        name:String(m.name).trim(),
+        price:fmtPrice(m.price),
+        cur:m.cur?String(m.cur).trim():"",
+        period:m.period?String(m.period).trim():"",
+        desc:m.desc?String(m.desc).trim():"",
+        features:feats,
+        popular:["да","1","true","yes","+","x"].indexOf(pop)>-1
+      });
+    });
+    return res;
+  }
+
+  document.getElementById("upBtn").addEventListener("click",function(){file.click()});
+  file.addEventListener("change",function(){
+    var f=file.files[0];if(!f)return;
+    var rd=new FileReader();
+    rd.onload=function(e){
+      try{
+        var wb=XLSX.read(e.target.result,{type:"array"});
+        var rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});
+        var list=parse(rows);
+        if(!list.length){say("Не нашёл тарифов. В первой строке нужны заголовки: Тариф, Цена, Описание, Включено. Скачайте шаблон.",true);return}
+        tariffs=list;store(KEY_T,JSON.stringify(list));render();
+        say("Загружено тарифов: "+list.length+" (из файла «"+f.name+"»).");
+      }catch(err){say("Не удалось прочитать файл. Проверьте, что это .xlsx, .xls или .csv.",true)}
+      file.value="";
+    };
+    rd.onerror=function(){say("Ошибка чтения файла.",true)};
+    rd.readAsArrayBuffer(f);
+  });
+
+  document.getElementById("tplBtn").addEventListener("click",function(){
+    var data=[["Тариф","Цена","Валюта","Период","Описание","Включено","Популярный"]];
+    DEFAULT.forEach(function(t){data.push([t.name,Number(t.price.replace(/\s/g,"")),"₸","месяц",t.desc,t.features.join("; "),t.popular?"да":""])});
+    var ws=XLSX.utils.aoa_to_sheet(data);ws["!cols"]=[{wch:14},{wch:10},{wch:8},{wch:10},{wch:28},{wch:60},{wch:12}];
+    var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Тарифы");
+    try{XLSX.writeFile(wb,"tarify-shablon.xlsx")}catch(e){say("Скачивание недоступно в этом окне. Откройте страницу в отдельной вкладке.",true)}
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
